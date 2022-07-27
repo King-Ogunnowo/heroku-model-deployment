@@ -1,0 +1,111 @@
+schema: '2.0'
+stages:
+  cleaning:
+    cmd: python src/cleaning.py
+    deps:
+    - path: sampled_data.csv
+      md5: ad1f40afa89506bc076061697760cb7f
+      size: 4975799
+    - path: src/cleaning.py
+      md5: be000d8159ecce6dfffe759d5be6c269
+      size: 525
+    outs:
+    - path: ./data_artifacts/cleaned_data.csv
+      md5: ad1f40afa89506bc076061697760cb7f
+      size: 4975799
+  feature_extraction:
+    cmd: python src/feature_extraction.py
+    deps:
+    - path: data_artifacts/cleaned_data.csv
+      md5: ad1f40afa89506bc076061697760cb7f
+      size: 4975799
+    - path: src/feature_extraction.py
+      md5: ed28f379e9a940c3151ab5658f3829e4
+      size: 1451
+    outs:
+    - path: data_artifacts/features_extracted.csv
+      md5: 2e2eeaf83b40856178e884dcaa2655a9
+      size: 8669774
+  feature_transformation:
+    cmd: python src/feature_transformation.py
+    deps:
+    - path: data_artifacts/features_extracted.csv
+      md5: 2e2eeaf83b40856178e884dcaa2655a9
+      size: 8669774
+    - path: src/feature_transformation.py
+      md5: 375a43b78981ea6664645d366b0118fc
+      size: 2616
+    outs:
+    - path: data_artifacts/transformed_data.csv
+      md5: 70cf643d590e01991547c323dfed64bd
+      size: 10564957
+    - path: encoders/one_hot_encoder.pkl
+      md5: 6882e3856977fafb8ba071939a8a0902
+      size: 470
+    - path: encoders/ordinal_encoder.pkl
+      md5: 31245dcbc33eaefdd4a266e5f214099e
+      size: 1231
+  split_dataframe:
+    cmd: python src/splitter.py
+    deps:
+    - path: data_artifacts/transformed_data.csv
+      md5: 70cf643d590e01991547c323dfed64bd
+      size: 10564957
+    - path: src/splitter.py
+      md5: fd97ffd2cbcab20d22023c60e86ba8c7
+      size: 767
+    outs:
+    - path: data_artifacts/test_set.csv
+      md5: 086bb407f75ff9a508eb90ab2fa95b52
+      size: 422881
+    - path: data_artifacts/train_set.csv
+      md5: 5c219d28d16b81ca05a22a43ff3707fb
+      size: 8452056
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data_artifacts/train_set.csv
+      md5: 5c219d28d16b81ca05a22a43ff3707fb
+      size: 8452056
+    - path: src/train.py
+      md5: 72e0e115d2a42af45dc31a22863756e8
+      size: 695
+    outs:
+    - path: model/model.pkl
+      md5: 01b71253a47282fe66cbeb69e407095f
+      size: 127448684
+  validate:
+    cmd: python src/test.py
+    deps:
+    - path: data_artifacts/test_set.csv
+      md5: 086bb407f75ff9a508eb90ab2fa95b52
+      size: 422881
+    - path: model/model.pkl
+      md5: 01b71253a47282fe66cbeb69e407095f
+      size: 127448684
+    - path: src/test.py
+      md5: 1b68f37e3d9d87caf66481f392c93d3d
+      size: 1510
+    outs:
+    - path: results/classification_report.png
+      md5: dacf1fa51b074dd1fda79a92b8813ce3
+      size: 25466
+  compile_pipeline:
+    cmd: python src/compile_model_pipeline.py
+    deps:
+    - path: data_artifacts/features_extracted.csv
+      md5: 2e2eeaf83b40856178e884dcaa2655a9
+      size: 8669774
+    - path: encoders/one_hot_encoder.pkl
+      md5: 6882e3856977fafb8ba071939a8a0902
+      size: 470
+    - path: encoders/ordinal_encoder.pkl
+      md5: 31245dcbc33eaefdd4a266e5f214099e
+      size: 1231
+    - path: src/compile_model_pipeline.py
+      md5: 672bae2f0e78cc052018a7fb1ca71b0d
+      size: 1384
+    outs:
+    - path: model/model_pipeline.pkl
+      md5: f926aa5f55e949ef6ba022df3bc49fe1
+      size: 88057172

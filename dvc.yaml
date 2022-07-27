@@ -1,0 +1,56 @@
+stages:
+  cleaning:
+    cmd: python src/cleaning.py
+    deps:
+    - sampled_data.csv
+    - src/cleaning.py
+    outs:
+    - ./data_artifacts/cleaned_data.csv
+  feature_extraction:
+    cmd: python src/feature_extraction.py
+    deps:
+    - data_artifacts/cleaned_data.csv
+    - src/feature_extraction.py
+    outs:
+    - data_artifacts/features_extracted.csv
+  feature_transformation:
+    cmd: python src/feature_transformation.py
+    deps:
+    - data_artifacts/features_extracted.csv
+    - src/feature_transformation.py
+    outs:
+    - data_artifacts/transformed_data.csv
+    - encoders/one_hot_encoder.pkl
+    - encoders/ordinal_encoder.pkl
+  split_dataframe:
+    cmd: python src/splitter.py
+    deps:
+    - data_artifacts/transformed_data.csv
+    - src/splitter.py
+    outs:
+    - data_artifacts/test_set.csv
+    - data_artifacts/train_set.csv
+  train:
+    cmd: python src/train.py
+    deps:
+    - data_artifacts/train_set.csv
+    - src/train.py
+    outs:
+    - model/model.pkl
+  validate:
+    cmd: python src/test.py
+    deps:
+    - data_artifacts/test_set.csv
+    - model/model.pkl
+    - src/test.py
+    outs:
+    - results/classification_report.png
+  compile_pipeline:
+    cmd: python src/compile_model_pipeline.py
+    deps:
+    - data_artifacts/features_extracted.csv
+    - encoders/one_hot_encoder.pkl
+    - encoders/ordinal_encoder.pkl
+    - src/compile_model_pipeline.py
+    outs:
+    - model/model_pipeline.pkl
